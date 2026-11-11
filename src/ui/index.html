@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHRONICLE // Local-First API Flight Recorder & Drift Inspector</title>
+  <link rel="stylesheet" href="./styles/utilitarian-dark.css" />
+</head>
+<body>
+  <div class="chronicle-shell">
+    <!-- Row 1: Hardware Transport & Cassette Deck Header -->
+    <header class="deck-header">
+      <div class="brand-cluster">
+        <div class="brand-mark">
+          <span class="led-dot"></span>
+          <span>CHRONICLE // FLIGHT-REC v1.0</span>
+        </div>
+        <select id="cassette-select" class="cassette-selector" aria-label="Active Flight Cassette"></select>
+        <input id="cassette-file-input" type="file" accept=".json" style="display:none" />
+        <button type="button" class="hw-btn" id="btn-import-cassette">LOAD .CHRONICLE</button>
+        <button type="button" class="hw-btn" id="btn-export-cassette">EXPORT</button>
+      </div>
+
+      <div class="transport-strip">
+        <button type="button" class="hw-btn" id="btn-step-prev" title="Previous Frame ([ or K)">&#9664;&#9664; PREV</button>
+        <button type="button" class="hw-btn" id="btn-play-toggle" title="Play/Pause Timeline (Space)">PLAY [SPC]</button>
+        <button type="button" class="hw-btn" id="btn-step-next" title="Next Frame (] or J)">NEXT &#9654;&#9654;</button>
+        <select id="speed-select" class="cassette-selector" aria-label="Playback Speed">
+          <option value="0.25">0.25x</option>
+          <option value="0.5">0.50x</option>
+          <option value="1" selected>1.00x</option>
+          <option value="2">2.00x</option>
+        </select>
+        <button type="button" class="hw-btn danger" id="btn-live-sim">
+          <span class="led-dot"></span> SIMULATE LIVE TRAFFIC
+        </button>
+      </div>
+
+      <div class="telemetry-readout" id="telemetry-strip"></div>
+    </header>
+
+    <!-- Row 2: Multi-Track Waterfall Scrubber -->
+    <section class="timeline-deck" aria-label="Flight Timeline Scrubber">
+      <div class="timeline-ruler" id="timeline-ruler"></div>
+      <div class="timeline-canvas-wrap">
+        <canvas id="timeline-canvas"></canvas>
+      </div>
+      <div class="timeline-footer">
+        <span>MARKERS: <strong style="color:#f59f00">+412ms DB Pool Saturation</strong> | <strong style="color:#e03131">+790ms Acquirer 504 Timeout</strong></span>
+        <span>SCRUB TIMELINE OR PRESS <span class="kbd-hint">J</span> / <span class="kbd-hint">K</span> TO STEP FRAMES</span>
+      </div>
+    </section>
+
+    <!-- Row 3: Protocol, Method, Status & Payload Filter Strip -->
+    <section class="filter-bar" aria-label="Frame Filters">
+      <div class="filter-group">
+        <span class="mono" style="color:var(--text-muted);font-size:10px;margin-right:4px">METHOD:</span>
+        <button type="button" class="hw-btn active" data-filter-method="ALL">ALL</button>
+        <button type="button" class="hw-btn" data-filter-method="GET">GET</button>
+        <button type="button" class="hw-btn" data-filter-method="POST">POST</button>
+        <button type="button" class="hw-btn" data-filter-method="WS">WS</button>
+      </div>
+
+      <div class="filter-group">
+        <span class="mono" style="color:var(--text-muted);font-size:10px;margin-right:4px">STATUS:</span>
+        <button type="button" class="hw-btn active" data-filter-status="ALL">ALL</button>
+        <button type="button" class="hw-btn" data-filter-status="2XX">2XX</button>
+        <button type="button" class="hw-btn" data-filter-status="4XX">4XX</button>
+        <button type="button" class="hw-btn" data-filter-status="5XX">5XX</button>
+        <button type="button" class="hw-btn" data-filter-status="WS">101 WS</button>
+      </div>
+
+      <div class="filter-group">
+        <input
+          id="search-filter-input"
+          type="text"
+          class="search-input"
+          placeholder="Filter path, payload, fingerprint... [/]"
+          aria-label="Filter frames"
+        />
+        <button type="button" class="hw-btn" id="btn-reset-filters">RESET</button>
+      </div>
+    </section>
+
+    <!-- Row 4: Split Workbench (Left: Captured Frame Matrix | Right: Deep Frame Inspector) -->
+    <main class="workbench-split">
+      <div class="frame-table-pane">
+        <div class="pane-scroll">
+          <table class="frame-grid">
+            <thead>
+              <tr>
+                <th style="width:46px">SEQ</th>
+                <th style="width:62px">MTHD</th>
+                <th style="width:54px">STAT</th>
+                <th>ENDPOINT / URI</th>
+                <th style="width:68px;text-align:right">TIME</th>
+                <th style="width:64px;text-align:right">SIZE</th>
+                <th style="width:110px">WATERFALL</th>
+              </tr>
+            </thead>
+            <tbody id="frame-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="inspector-pane">
+        <div class="inspector-header" id="inspector-frame-summary"></div>
+        <nav class="inspector-tabs" aria-label="Inspector Views">
+          <button type="button" class="tab-btn active" data-tab="payload">PAYLOAD</button>
+          <button type="button" class="tab-btn" data-tab="headers">HEADERS</button>
+          <button type="button" class="tab-btn" data-tab="waterfall">WATERFALL &amp; WS</button>
+          <button type="button" class="tab-btn" data-tab="diff">STRUCTURAL DIFF</button>
+          <button type="button" class="tab-btn" data-tab="hex">HEX / WIRE</button>
+          <button type="button" class="tab-btn" data-tab="replay">REPLAY &amp; CODEGEN</button>
+        </nav>
+        <div class="inspector-body" id="inspector-content"></div>
+      </aside>
+    </main>
+
+    <!-- Row 5: Hardware Telemetry & Shortcut Footer -->
+    <footer class="status-footer">
+      <span id="footer-status-msg">READY // LOCAL-FIRST ENGINE ACTIVE (SHA-256 FINGERPRINTING + PII SCRUBBER)</span>
+      <div>
+        <span>KEYS: <span class="kbd-hint">J</span>/<span class="kbd-hint">K</span> STEP</span>
+        <span style="margin-left:8px"><span class="kbd-hint">SPC</span> PLAY/PAUSE</span>
+        <span style="margin-left:8px"><span class="kbd-hint">/</span> SEARCH</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./js/sample-traces.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>

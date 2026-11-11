@@ -1,0 +1,46 @@
+{
+  "name": "chronicle-flight-recorder",
+  "version": "1.0.0",
+  "description": "Local-first HTTP/WebSocket API Flight Recorder, Time-Travel Replay Proxy, and Structural Drift Inspector",
+  "type": "module",
+  "bin": {
+    "chronicle": "bin/chronicle.js"
+  },
+  "scripts": {
+    "start": "node ./bin/chronicle.js inspect --port 4800",
+    "record": "node ./bin/chronicle.js record",
+    "replay": "node ./bin/chronicle.js replay",
+    "diff": "node ./bin/chronicle.js diff",
+    "test": "node ./tests/chronicle.test.js",
+    "bundle-ui": "node ./scripts/bundle-canvas.js",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [
+    "api-flight-recorder",
+    "reverse-proxy",
+    "deterministic-replay",
+    "websocket-inspector",
+    "local-first",
+    "api-diff"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT",
+  "files": [
+    "bin",
+    "src",
+    "traces",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acus9345/chronicle-flight-recorder.git"
+  },
+  "homepage": "https://github.com/acus9345/chronicle-flight-recorder#readme",
+  "bugs": {
+    "url": "https://github.com/acus9345/chronicle-flight-recorder/issues"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "schema": "chronicle.v1",
+  "id": "cassette_base_20261110_1400",
+  "title": "BASELINE-v4.18: Clean Checkout Reference Trace",
+  "targetHost": "https://api.meridian-commerce.internal",
+  "createdAt": "2026-11-10T14:00:00.000Z",
+  "environment": "staging-ap-southeast-1",
+  "bookmarks": [],
+  "frames": [
+    {
+      "id": "frm_b001",
+      "seq": 1,
+      "protocol": "HTTP/2",
+      "method": "POST",
+      "path": "/v2/auth/token/refresh",
+      "host": "https://api.meridian-commerce.internal",
+      "status": 200,
+      "offsetMs": 0,
+      "durationMs": 29.0,
+      "fingerprint": "a81f49c0192b7e11",
+      "timings": { "dnsMs": 1.0, "tcpMs": 4.0, "tlsMs": 7.0, "ttfbMs": 14.5, "transferMs": 2.5, "totalMs": 29.0 },
+      "request": {
+        "headers": { "content-type": "application/json", "authorization": "Bearer [REDACTED:eyJh…len=148]" },
+        "body": "{\"grant_type\":\"refresh_token\",\"refresh_token\":\"[REDACTED:len=64]\",\"scope\":\"checkout:write orders:read\"}",
+        "sizeBytes": 103
+      },
+      "response": {
+        "headers": { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+        "body": "{\"access_token\":\"[REDACTED:len=152]\",\"token_type\":\"Bearer\",\"expires_in\":900,\"session_tier\":\"verified_merchant\"}",
+        "sizeBytes": 112
+      }
+    },
+    {
+      "id": "frm_b002",
+      "seq": 2,
+      "protocol": "HTTP/2",
+      "method": "GET",
+      "path": "/v2/cart/crt_88219a?currency=SGD&include_tax=true",
+      "host": "https://api.meridian-commerce.internal",
+      "status": 200,
+      "offsetMs": 35,
+      "durationMs": 42.0,
+      "fingerprint": "3f92c18400b7e129",
+      "timings": { "dnsMs": 0, "tcpMs": 0, "tlsMs": 0, "ttfbMs": 37.0, "transferMs": 5.0, "totalMs": 42.0 },
+      "request": {
+        "headers": { "accept": "application/json" },
+        "body": "",
+        "sizeBytes": 0
+      },
+      "response": {
+        "headers": { "content-type": "application/json; charset=utf-8", "x-cache": "HIT-REDIS" },
+        "body": "{\"cart_id\":\"crt_88219a\",\"currency\":\"SGD\",\"subtotal_cents\":42800,\"gst_cents\":3852,\"total_cents\":46652,\"items\":[{\"sku\":\"HW-LOGIC-16\",\"qty\":1,\"unit_cents\":42800,\"warehouse\":\"SG-JURONG-02\"}]}",
+        "sizeBytes": 188
+      }
+    },
+    {
+      "id": "frm_b003",
+      "seq": 3,
+      "protocol": "HTTP/2",
+      "method": "POST",
+      "path": "/v2/inventory/reserve",
+      "host": "https://api.meridian-commerce.internal",
+      "status": 200,
+      "offsetMs": 95,
+      "durationMs": 41.2,
+      "fingerprint": "c4092817fa83b012",
+      "timings": { "dnsMs": 0, "tcpMs": 0, "tlsMs": 0, "ttfbMs": 36.2, "transferMs": 5.0, "totalMs": 41.2 },
+      "request": {
+        "headers": { "content-type": "application/json" },
+        "body": "{\"cart_id\":\"crt_88219a\",\"sku\":\"HW-LOGIC-16\",\"qty\":1,\"warehouse\":\"SG-JURONG-02\"}",
+        "sizeBytes": 79
+      },
+      "response": {
+        "headers": { "content-type": "application/json; charset=utf-8", "x-db-pool-wait-ms": "2" },
+        "body": "{\"reservation_id\":\"rsv_55019f\",\"status\":\"LOCKED\",\"expires_epoch_s\":1794387430,\"stock_remaining\":12}",
+        "sizeBytes": 99
+      }
+    },
+    {
+      "id": "frm_b004",
+      "seq": 4,
+      "protocol": "HTTP/2",
+      "method": "POST",
+      "path": "/v2/payments/intent/capture",
+      "host": "https://api.meridian-commerce.internal",
+      "status": 200,
+      "offsetMs": 148,
+      "durationMs": 118.0,
+      "fingerprint": "e9104b772c1a9f04",
+      "timings": { "dnsMs": 0, "tcpMs": 0, "tlsMs": 0, "ttfbMs": 112.0, "transferMs": 6.0, "totalMs": 118.0 },
+      "request": {
+        "headers": { "content-type": "application/json" },
+        "body": "{\"cart_id\":\"crt_88219a\",\"reservation_id\":\"rsv_55019f\",\"amount_cents\":46652,\"currency\":\"SGD\",\"payment_method\":\"pm_card_sg_visa_4242\"}",
+        "sizeBytes": 132
+      },
+      "response": {
+        "headers": { "content-type": "application/json; charset=utf-8", "x-upstream-node": "pay-core-01" },
+        "body": "{\"capture_id\":\"cap_77100a\",\"status\":\"SETTLED\",\"amount_cents\":46652,\"currency\":\"SGD\",\"receipt_no\":\"SG-2026-99100\",\"fee_breakdown\":{\"processing_cents\":980,\"net_cents\":45672}}",
+        "sizeBytes": 172
+      }
+    },
+    {
+      "id": "frm_b005",
+      "seq": 5,
+      "protocol": "HTTP/2",
+      "method": "POST",
+      "path": "/v2/orders/finalize",
+      "host": "https://api.meridian-commerce.internal",
+      "status": 201,
+      "offsetMs": 280,
+      "durationMs": 64.0,
+      "fingerprint": "9102bc88e1204f5a",
+      "timings": { "dnsMs": 0, "tcpMs": 0, "tlsMs": 0, "ttfbMs": 58.0, "transferMs": 6.0, "totalMs": 64.0 },
+      "request": {
+        "headers": { "content-type": "application/json" },
+        "body": "{\"cart_id\":\"crt_88219a\",\"capture_id\":\"cap_77100a\",\"reservation_id\":\"rsv_55019f\"}",
+        "sizeBytes": 80
+      },
+      "response": {
+        "headers": { "content-type": "application/json; charset=utf-8" },
+        "body": "{\"order_id\":\"ord_20261110_112\",\"state\":\"CONFIRMED\",\"dispatch_eta\":\"2026-11-11T04:00:00Z\",\"total_cents\":46652}",
+        "sizeBytes": 109
+      }
+    }
+  ]
+}
